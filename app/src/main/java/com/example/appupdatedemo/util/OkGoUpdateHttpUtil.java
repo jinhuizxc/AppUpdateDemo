@@ -2,9 +2,9 @@ package com.example.appupdatedemo.util;
 
 import android.support.annotation.NonNull;
 
+import com.example.appupdatedemo.updateApp.update.listener.HttpManager;
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.model.Progress;
-import com.vector.update_app.HttpManager;
 
 import java.io.File;
 import java.util.Map;

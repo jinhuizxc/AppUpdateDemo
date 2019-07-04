@@ -1,4 +1,4 @@
-package com.example.appupdatedemo.test;
+package com.example.appupdatedemo.app_updater;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -32,7 +32,7 @@ public class TestActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_test);
 
         mActivity = this;
 
@@ -96,6 +96,7 @@ public class TestActivity extends AppCompatActivity {
                         progressBar.setVisibility(View.INVISIBLE);
                     }
                 }).start();
+
                             /*new AppUpdater(getContext(), updateVersion.fileid + "?access_token=" + Shareds.getInstance().getToken())
 //                                    .setHttpManager(new UpdateAppHttpUtil())
                                     .setUpdateCallback(new UpdateCallback() {

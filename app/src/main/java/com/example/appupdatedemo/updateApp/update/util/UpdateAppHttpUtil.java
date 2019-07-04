@@ -1,8 +1,9 @@
-package com.example.appupdatedemo.util;
+package com.example.appupdatedemo.updateApp.update.util;
 
 import android.support.annotation.NonNull;
 
-import com.vector.update_app.HttpManager;
+
+import com.example.appupdatedemo.updateApp.update.listener.HttpManager;
 import com.zhy.http.okhttp.OkHttpUtils;
 import com.zhy.http.okhttp.callback.FileCallBack;
 import com.zhy.http.okhttp.callback.StringCallback;

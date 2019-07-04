@@ -1,4 +1,4 @@
-package com.vector.update_app;
+package com.example.appupdatedemo.updateApp.update;
 
 import android.app.Activity;
 import android.content.ComponentName;
@@ -15,11 +15,14 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.vector.update_app.listener.ExceptionHandler;
-import com.vector.update_app.listener.ExceptionHandlerHelper;
-import com.vector.update_app.listener.IUpdateDialogFragmentListener;
-import com.vector.update_app.service.DownloadService;
-import com.vector.update_app.utils.AppUpdateUtils;
+import com.example.appupdatedemo.updateApp.update.bean.UpdateAppBean;
+import com.example.appupdatedemo.updateApp.update.fragment.UpdateDialogFragment;
+import com.example.appupdatedemo.updateApp.update.listener.ExceptionHandler;
+import com.example.appupdatedemo.updateApp.update.listener.ExceptionHandlerHelper;
+import com.example.appupdatedemo.updateApp.update.listener.HttpManager;
+import com.example.appupdatedemo.updateApp.update.listener.IUpdateDialogFragmentListener;
+import com.example.appupdatedemo.updateApp.update.service.DownloadService;
+import com.example.appupdatedemo.updateApp.update.util.AppUpdateUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -29,9 +32,10 @@ import java.util.Map;
  */
 public class UpdateAppManager {
 
-    final static String INTENT_KEY = "update_dialog_values";
-    final static String THEME_KEY = "theme_color";
-    final static String TOP_IMAGE_KEY = "top_resId";
+
+    public final static String INTENT_KEY = "update_dialog_values";
+    public final static String THEME_KEY = "theme_color";
+    public final static String TOP_IMAGE_KEY = "top_resId";
     private final static String UPDATE_APP_KEY = "UPDATE_APP_KEY";
     private static final String TAG = UpdateAppManager.class.getSimpleName();
     private Map<String, String> mParams;
@@ -55,7 +59,7 @@ public class UpdateAppManager {
     //自定义参数
     private IUpdateDialogFragmentListener mUpdateDialogFragmentListener;
 
-    private UpdateAppManager(Builder builder) {
+    public UpdateAppManager(Builder builder) {
         mActivity = builder.getActivity();
         mHttpManager = builder.getHttpManager();
         mUpdateUrl = builder.getUpdateUrl();
@@ -108,29 +112,6 @@ public class UpdateAppManager {
     }
 
     /**
-     * 跳转到更新页面
-     */
-//    public void showDialog() {
-//        if (verify()) return;
-//
-//
-//        if (mActivity != null && !mActivity.isFinishing()) {
-//            Intent updateIntent = new Intent(mActivity, DialogActivity.class);
-//            fillUpdateAppData();
-//            updateIntent.putExtra(INTENT_KEY, mUpdateApp);
-//            if (mThemeColor != 0) {
-//                updateIntent.putExtra(THEME_KEY, mThemeColor);
-//            }
-//
-//            if (mTopPic != 0) {
-//                updateIntent.putExtra(TOP_IMAGE_KEY, mTopPic);
-//            }
-//            mActivity.startActivity(updateIntent);
-//        }
-//
-//    }
-
-    /**
      * @return 新版本信息
      */
     public UpdateAppBean fillUpdateAppData() {
@@ -143,10 +124,8 @@ public class UpdateAppManager {
             mUpdateApp.setOnlyWifi(mOnlyWifi);
             return mUpdateApp;
         }
-
         return null;
     }
-
 
     private boolean verify() {
         //版本忽略
@@ -205,10 +184,10 @@ public class UpdateAppManager {
     /**
      * 最简方式
      */
-
     public void update() {
         checkNewApp(new UpdateCallback());
     }
+
 
     /**
      * 检测是否有新版本
@@ -287,6 +266,32 @@ public class UpdateAppManager {
     }
 
     /**
+     * 解析
+     *
+     * @param result
+     * @param callback
+     */
+    private void processData(String result, @NonNull UpdateCallback callback) {
+        try {
+            mUpdateApp = callback.parseJson(result);
+            if (mUpdateApp.isUpdate()) {
+                callback.hasNewApp(mUpdateApp, this);
+                //假如是静默下载，可能需要判断，
+                //是否wifi,
+                //是否已经下载，如果已经下载直接提示安装
+                //没有则进行下载，监听下载完成，弹出安装对话框
+
+            } else {
+                callback.noNewApp("没有新版本");
+            }
+        } catch (Exception ignored) {
+            ignored.printStackTrace();
+            callback.noNewApp(String.format("解析自定义更新配置消息出错[%s]", ignored.getMessage()));
+        }
+    }
+
+
+    /**
      * 后台下载
      *
      * @param downloadCallback 后台下载回调
@@ -317,32 +322,19 @@ public class UpdateAppManager {
         download(null);
     }
 
-    /**
-     * 解析
-     *
-     * @param result
-     * @param callback
-     */
-    private void processData(String result, @NonNull UpdateCallback callback) {
-        try {
-            mUpdateApp = callback.parseJson(result);
-            if (mUpdateApp.isUpdate()) {
-                callback.hasNewApp(mUpdateApp, this);
-                //假如是静默下载，可能需要判断，
-                //是否wifi,
-                //是否已经下载，如果已经下载直接提示安装
-                //没有则进行下载，监听下载完成，弹出安装对话框
 
-            } else {
-                callback.noNewApp("没有新版本");
-            }
-        } catch (Exception ignored) {
-            ignored.printStackTrace();
-            callback.noNewApp(String.format("解析自定义更新配置消息出错[%s]", ignored.getMessage()));
-        }
-    }
 
+
+
+
+
+
+
+
+
+    // 创建Builder
     public static class Builder {
+
         //必须有
         private Activity mActivity;
         //必须有
@@ -373,12 +365,13 @@ public class UpdateAppManager {
         private boolean mOnlyWifi;
         private IUpdateDialogFragmentListener mUpdateDialogFragmentListener;
 
+        // 获取自定义参数
         public Map<String, String> getParams() {
             return params;
         }
 
         /**
-         * 自定义请求参数
+         * 设置自定义请求参数
          *
          * @param params 自定义请求参数
          * @return Builder
@@ -450,9 +443,7 @@ public class UpdateAppManager {
             return mActivity;
         }
 
-        /**
-         * 是否是post请求，默认是get
-         *
+        /*
          * @param activity 当前提示的Activity
          * @return Builder
          */
@@ -536,40 +527,6 @@ public class UpdateAppManager {
         }
 
         /**
-         * @return 生成app管理器
-         */
-        public UpdateAppManager build() {
-            //校验
-            if (getActivity() == null || getHttpManager() == null || TextUtils.isEmpty(getUpdateUrl())) {
-                throw new NullPointerException("必要参数不能为空");
-            }
-            if (TextUtils.isEmpty(getTargetPath())) {
-                //sd卡是否存在
-                String path = "";
-                if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED) || !Environment.isExternalStorageRemovable()) {
-                    try {
-                        path = getActivity().getExternalCacheDir().getAbsolutePath();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                    if (TextUtils.isEmpty(path)) {
-                        path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
-                    }
-                } else {
-                    path = getActivity().getCacheDir().getAbsolutePath();
-                }
-                setTargetPath(path);
-            }
-            if (TextUtils.isEmpty(getAppKey())) {
-                String appKey = AppUpdateUtils.getManifestString(getActivity(), UPDATE_APP_KEY);
-                if (!TextUtils.isEmpty(appKey)) {
-                    setAppKey(appKey);
-                }
-            }
-            return new UpdateAppManager(this);
-        }
-
-        /**
          * 是否隐藏对话框下载进度条
          *
          *
@@ -586,6 +543,7 @@ public class UpdateAppManager {
         public boolean isHideDialog() {
             return mHideDialog;
         }
+
 
         /**
          * 显示忽略版本
@@ -624,12 +582,56 @@ public class UpdateAppManager {
             return mOnlyWifi;
         }
 
+        /**
+         * @return 生成app管理器
+         */
+        public UpdateAppManager build() {
+            //校验
+            if (getActivity() == null || getHttpManager() == null || TextUtils.isEmpty(getUpdateUrl())) {
+                throw new NullPointerException("必要参数不能为空");
+            }
+            if (TextUtils.isEmpty(getTargetPath())) {
+                //sd卡是否存在
+                String path = "";
+                if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED) || !Environment.isExternalStorageRemovable()) {
+                    try {
+                        path = getActivity().getExternalCacheDir().getAbsolutePath();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                    if (TextUtils.isEmpty(path)) {
+                        path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
+                    }
+                } else {
+                    path = getActivity().getCacheDir().getAbsolutePath();
+                }
+                // 设置apk下载路径;
+                setTargetPath(path);
+            }
+            if (TextUtils.isEmpty(getAppKey())) {
+                String appKey = AppUpdateUtils.getManifestString(getActivity(), UPDATE_APP_KEY);
+                if (!TextUtils.isEmpty(appKey)) {
+                    setAppKey(appKey);
+                }
+            }
+            return new UpdateAppManager(this);
+        }
+
+        /**
+         *  处理异常
+         * @param exceptionHandler
+         * @return
+         */
         public Builder handleException(ExceptionHandler exceptionHandler) {
             ExceptionHandlerHelper.init(exceptionHandler);
             return this;
         }
 
+
+
+
+
+
+
     }
-
 }
-

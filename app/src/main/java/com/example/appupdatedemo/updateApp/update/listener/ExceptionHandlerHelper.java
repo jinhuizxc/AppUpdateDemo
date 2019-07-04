@@ -1,4 +1,4 @@
-package com.vector.update_app.listener;
+package com.example.appupdatedemo.updateApp.update.listener;
 
 /**
  * Created by Vector

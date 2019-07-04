@@ -1,20 +1,25 @@
-package com.example.appupdatedemo;
+package com.example.appupdatedemo.updateApp;
 
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 
-import com.example.appupdatedemo.util.UpdateAppHttpUtil;
-import com.vector.update_app.UpdateAppManager;
-import com.vector.update_app.listener.ExceptionHandler;
-
+import com.example.appupdatedemo.R;
+import com.example.appupdatedemo.updateApp.update.UpdateAppManager;
+import com.example.appupdatedemo.updateApp.update.listener.ExceptionHandler;
+import com.example.appupdatedemo.updateApp.update.util.UpdateAppHttpUtil;
 /**
+ * 由于作者处理的是json作为apk下载地址，而后台提供的是apk的url。
+ * 两者不同，但是需要做成这样的更新弹框的话就需要对作者的代码进行修改;
+ *
+ * 8.0下载没有通知栏问题配置;
  *
  */
 public class MainActivity extends AppCompatActivity {
 
     private String mUpdateUrl = "https://raw.githubusercontent.com/WVector/AppUpdateDemo/master/json/json.txt";
     private String mApkFileUrl = "https://raw.githubusercontent.com/WVector/AppUpdateDemo/master/apk/sample-debug.apk";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

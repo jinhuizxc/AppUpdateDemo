@@ -1,4 +1,4 @@
-package com.vector.update_app;
+package com.example.appupdatedemo.updateApp.update.fragment;
 
 import android.Manifest;
 import android.app.Activity;
@@ -11,10 +11,12 @@ import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
@@ -30,31 +32,56 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.vector.update_app.listener.ExceptionHandler;
-import com.vector.update_app.listener.ExceptionHandlerHelper;
-import com.vector.update_app.listener.IUpdateDialogFragmentListener;
-import com.vector.update_app.service.DownloadService;
-import com.vector.update_app.utils.AppUpdateUtils;
-import com.vector.update_app.utils.ColorUtil;
-import com.vector.update_app.utils.DrawableUtil;
-import com.vector.update_app.view.NumberProgressBar;
+import com.blankj.utilcode.util.ToastUtils;
+import com.example.appupdatedemo.R;
+import com.example.appupdatedemo.updateApp.update.UpdateAppManager;
+import com.example.appupdatedemo.updateApp.update.bean.UpdateAppBean;
+import com.example.appupdatedemo.updateApp.update.listener.ExceptionHandler;
+import com.example.appupdatedemo.updateApp.update.listener.ExceptionHandlerHelper;
+import com.example.appupdatedemo.updateApp.update.listener.IUpdateDialogFragmentListener;
+import com.example.appupdatedemo.updateApp.update.service.DownloadService;
+import com.example.appupdatedemo.updateApp.update.util.AppUpdateUtils;
+import com.example.appupdatedemo.updateApp.update.util.ColorUtil;
+import com.example.appupdatedemo.updateApp.update.util.DrawableUtil;
+import com.example.appupdatedemo.updateApp.update.view.NumberProgressBar;
 
 import java.io.File;
 
-/**
- * Created by Vector
- * on 2017/7/19 0019.
- */
-
 public class UpdateDialogFragment extends DialogFragment implements View.OnClickListener {
+
     public static final String TIPS = "请授权访问存储空间权限，否则App无法更新";
     public static boolean isShow = false;
     private TextView mContentTextView;
     private Button mUpdateOkButton;
     private UpdateAppBean mUpdateApp;
+    // 自定义数字进度条
     private NumberProgressBar mNumberProgressBar;
     private ImageView mIvClose;
     private TextView mTitleTextView;
+
+    private LinearLayout mLlClose;
+    //默认色
+    private int mDefaultColor = 0xffe94339;
+    private int mDefaultPicResId = R.mipmap.lib_update_app_top_bg;
+    private ImageView mTopIv;
+    private TextView mIgnore;
+    private IUpdateDialogFragmentListener mUpdateDialogFragmentListener;
+    private DownloadService.DownloadBinder mDownloadBinder;
+    private Activity mActivity;
+
+    public static UpdateDialogFragment newInstance(Bundle args) {
+        UpdateDialogFragment fragment = new UpdateDialogFragment();
+        if (args != null) {
+            fragment.setArguments(args);
+        }
+        return fragment;
+    }
+
+    public UpdateDialogFragment setUpdateDialogFragmentListener(IUpdateDialogFragmentListener updateDialogFragmentListener) {
+        this.mUpdateDialogFragmentListener = updateDialogFragmentListener;
+        return this;
+    }
+
     /**
      * 回调
      */
@@ -70,41 +97,17 @@ public class UpdateDialogFragment extends DialogFragment implements View.OnClick
         }
     };
 
-    private LinearLayout mLlClose;
-    //默认色
-    private int mDefaultColor = 0xffe94339;
-    private int mDefaultPicResId = R.mipmap.lib_update_app_top_bg;
-    private ImageView mTopIv;
-    private TextView mIgnore;
-    private IUpdateDialogFragmentListener mUpdateDialogFragmentListener;
-    private DownloadService.DownloadBinder mDownloadBinder;
-    private Activity mActivity;
 
-    public UpdateDialogFragment setUpdateDialogFragmentListener(IUpdateDialogFragmentListener updateDialogFragmentListener) {
-        this.mUpdateDialogFragmentListener = updateDialogFragmentListener;
-        return this;
-    }
-
-
-    public static UpdateDialogFragment newInstance(Bundle args) {
-        UpdateDialogFragment fragment = new UpdateDialogFragment();
-        if (args != null) {
-            fragment.setArguments(args);
-        }
-        return fragment;
-    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         isShow = true;
 //        setStyle(DialogFragment.STYLE_NO_TITLE | DialogFragment.STYLE_NO_FRAME, 0);
         setStyle(DialogFragment.STYLE_NO_TITLE, R.style.UpdateAppDialog);
 
-
         mActivity = getActivity();
-
-
 
     }
 
@@ -122,6 +125,13 @@ public class UpdateDialogFragment extends DialogFragment implements View.OnClick
             @Override
             public boolean onKey(DialogInterface dialog, int keyCode, KeyEvent event) {
                 if (keyCode == KeyEvent.KEYCODE_BACK) {
+                 /*   cancelDownloadService();
+                    if (mUpdateDialogFragmentListener != null) {
+                        // 通知用户
+                        mUpdateDialogFragmentListener.onUpdateNotifyDialogCancel(mUpdateApp);
+                    }
+                    dismiss();*/
+
                     //禁用
                     if (mUpdateApp != null && mUpdateApp.isConstraint()) {
                         //返回桌面
@@ -141,16 +151,17 @@ public class UpdateDialogFragment extends DialogFragment implements View.OnClick
         DisplayMetrics displayMetrics = getContext().getResources().getDisplayMetrics();
         lp.height = (int) (displayMetrics.heightPixels * 0.8f);
         dialogWindow.setAttributes(lp);
+
     }
 
     @Nullable
     @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate(R.layout.lib_update_app_dialog, container);
     }
 
     @Override
-    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initView(view);
     }
@@ -172,11 +183,10 @@ public class UpdateDialogFragment extends DialogFragment implements View.OnClick
         mTopIv = view.findViewById(R.id.iv_top);
         //忽略
         mIgnore = view.findViewById(R.id.tv_ignore);
-
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         initData();
     }
@@ -185,7 +195,6 @@ public class UpdateDialogFragment extends DialogFragment implements View.OnClick
         mUpdateApp = (UpdateAppBean) getArguments().getSerializable(UpdateAppManager.INTENT_KEY);
         //设置主题色
         initTheme();
-
 
         if (mUpdateApp != null) {
             //弹出对话框
@@ -220,7 +229,15 @@ public class UpdateDialogFragment extends DialogFragment implements View.OnClick
 
             initEvents();
         }
+
     }
+
+    private void initEvents() {
+        mUpdateOkButton.setOnClickListener(this);
+        mIvClose.setOnClickListener(this);
+        mIgnore.setOnClickListener(this);
+    }
+
 
     /**
      * 初始化主题色
@@ -276,17 +293,12 @@ public class UpdateDialogFragment extends DialogFragment implements View.OnClick
         mUpdateOkButton.setTextColor(ColorUtil.isTextColorDark(color) ? Color.BLACK : Color.WHITE);
     }
 
-    private void initEvents() {
-        mUpdateOkButton.setOnClickListener(this);
-        mIvClose.setOnClickListener(this);
-        mIgnore.setOnClickListener(this);
-    }
+
 
     @Override
     public void onClick(View view) {
         int i = view.getId();
         if (i == R.id.btn_ok) {
-
             //权限判断是否有访问外部存储空间权限
             int flag = ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
             if (flag != PackageManager.PERMISSION_GRANTED) {
@@ -302,8 +314,7 @@ public class UpdateDialogFragment extends DialogFragment implements View.OnClick
                 installApp();
 
             }
-
-        } else if (i == R.id.iv_close) {
+        }else if (i == R.id.iv_close) {
             // TODO @WVector 这里是否要对UpdateAppBean的强制更新做处理？不会重合，当强制更新时，就不会显示这个按钮，也不会调这个方法。
 //            if (mNumberProgressBar.getVisibility() == View.VISIBLE) {
 //                Toast.makeText(getApplicationContext(), "后台更新app", Toast.LENGTH_LONG).show();
@@ -314,7 +325,7 @@ public class UpdateDialogFragment extends DialogFragment implements View.OnClick
                 mUpdateDialogFragmentListener.onUpdateNotifyDialogCancel(mUpdateApp);
             }
             dismiss();
-        } else if (i == R.id.tv_ignore) {
+        }else if (i == R.id.tv_ignore) {
             AppUpdateUtils.saveIgnoreVersion(getActivity(), mUpdateApp.getNewVersion());
             dismiss();
         }
@@ -457,31 +468,9 @@ public class UpdateDialogFragment extends DialogFragment implements View.OnClick
         });
     }
 
-
-//    @Override
-//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        Log.e("", "对话框 requestCode = [" + requestCode + "], resultCode = [" + resultCode + "], data = [" + data + "]");
-//        switch (resultCode) {
-//            case Activity.RESULT_CANCELED:
-//                switch (requestCode){
-//                    // 得到通过UpdateDialogFragment默认dialog方式安装，用户取消安装的回调通知，以便用户自己去判断，比如这个更新如果是强制的，但是用户下载之后取消了，在这里发起相应的操作
-//                    case AppUpdateUtils.REQ_CODE_INSTALL_APP:
-//                        if (mUpdateApp.isConstraint()) {
-//                            if (AppUpdateUtils.appIsDownloaded(mUpdateApp)) {
-//                                AppUpdateUtils.installApp(UpdateDialogFragment.this, AppUpdateUtils.getAppFile(mUpdateApp));
-//                            }
-//                        }
-//                        break;
-//                }
-//                break;
-//
-//            default:
-//        }
-//    }
-
     @Override
     public void show(FragmentManager manager, String tag) {
-
+//        super.show(manager, tag);
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
             if (manager.isDestroyed()) {
                 return;
@@ -504,4 +493,3 @@ public class UpdateDialogFragment extends DialogFragment implements View.OnClick
         super.onDestroyView();
     }
 }
-
