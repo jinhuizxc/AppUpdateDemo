@@ -41,6 +41,20 @@
                 android:resource="@xml/new_app_file_paths"/>
         </provider>
 
+        <!--app_updater-->
+        <service android:name=".app_updater.service.DownloadService"/>
+
+        <provider
+            android:name=".app_updater.provider.AppUpdaterFileProvider"
+            android:authorities="${applicationId}.fileProvider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/app_updater_paths"/>
+        </provider>
+
+
     </application>
 
 </manifest>

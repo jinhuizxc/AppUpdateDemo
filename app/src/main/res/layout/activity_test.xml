@@ -7,6 +7,15 @@
     tools:context=".updateApp.MainActivity"
     android:orientation="vertical">
 
+
+    <Button
+        android:id="@+id/btn_page"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="16dp"
+        android:onClick="btn_page"
+        android:text="跳转页面" />
+
     <Button
         android:id="@+id/btn_default"
         android:layout_width="match_parent"
@@ -15,7 +24,7 @@
         android:onClick="updateApp"
         android:text="更新App(默认)" />
 
-    <ProgressBar
+    <com.example.appupdatedemo.updateApp.update.view.NumberProgressBar
         android:id="@+id/progressbar"
         style="@style/Base.Widget.AppCompat.ProgressBar.Horizontal"
         android:layout_width="match_parent"
