@@ -1,6 +1,14 @@
 apply plugin: 'com.android.application'
 
 android {
+    signingConfigs {
+        release {
+            keyAlias 'MyApp'
+            keyPassword '123456'
+            storeFile file('MyApp.jks')
+            storePassword '123456'
+        }
+    }
     compileSdkVersion 28
     defaultConfig {
         applicationId "com.example.appupdatedemo"
@@ -14,6 +22,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release // 配置release包的签名
         }
     }
 }

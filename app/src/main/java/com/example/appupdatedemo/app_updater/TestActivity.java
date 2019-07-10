@@ -30,7 +30,8 @@ import java.io.File;
  */
 public class TestActivity extends AppCompatActivity {
 
-    private String mApkFileUrl = "https://raw.githubusercontent.com/WVector/AppUpdateDemo/master/apk/sample-debug.apk";
+    private String mApkFileUrl = "https://github.com/jinhuizxc/AppUpdateDemo/blob/master/app/apk/app-debug.apk";
+//    private String mApkFileUrl = "https://raw.githubusercontent.com/WVector/AppUpdateDemo/master/apk/sample-debug.apk";
 //    private String mApkFileUrl = "http://192.168.1.169:7820/faas/fileapi/download/zxfile/b4e6049b5fd44f09aa9b6cdeb2893cdd?access_token=df61cf45-07ec-4bf4-ad90-709230b854f0";
     // 下载失败，不知道为啥
 
