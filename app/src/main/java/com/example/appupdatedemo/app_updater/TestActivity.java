@@ -2,22 +2,23 @@ package com.example.appupdatedemo.app_updater;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
-import android.widget.ProgressBar;
 
+import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.ToastUtils;
 import com.example.appupdatedemo.R;
 import com.example.appupdatedemo.app_updater.callback.UpdateCallback;
 import com.example.appupdatedemo.app_updater.constant.Constants;
 import com.example.appupdatedemo.updateApp.update.view.NumberProgressBar;
+import com.example.appupdatedemo.utils.NotificationUtils;
 import com.king.app.dialog.AppDialog;
 import com.king.app.dialog.AppDialogConfig;
-
+import com.mylhyl.circledialog.CircleDialog;
 
 import java.io.File;
-import java.util.logging.Logger;
 
 /**
  * 下载的url = http://192.168.1.169:7820/faas/fileapi/download/zxfile/b4e6049b5fd44f09aa9b6cdeb2893cdd?access_token=c0b315e5-221a-4cd3-953d-69a28309e084
@@ -30,7 +31,8 @@ import java.util.logging.Logger;
 public class TestActivity extends AppCompatActivity {
 
     private String mApkFileUrl = "https://raw.githubusercontent.com/WVector/AppUpdateDemo/master/apk/sample-debug.apk";
-//    private String mApkFileUrl = "http://192.168.1.169:7820/faas/fileapi/download/zxfile/b4e6049b5fd44f09aa9b6cdeb2893cdd?access_token=c0b315e5-221a-4cd3-953d-69a28309e084";
+//    private String mApkFileUrl = "http://192.168.1.169:7820/faas/fileapi/download/zxfile/b4e6049b5fd44f09aa9b6cdeb2893cdd?access_token=df61cf45-07ec-4bf4-ad90-709230b854f0";
+    // 下载失败，不知道为啥
 
     private TestActivity mActivity;
 
@@ -51,7 +53,42 @@ public class TestActivity extends AppCompatActivity {
         //进度条
         mNumberProgressBar = findViewById(R.id.progressbar);
 
+        // 检查是否打开了通知, 必须开启，否则可能8.0, 9.0手机收不到通知；
+        checkOpenNotification();
+
     }
+
+    private void checkOpenNotification() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            if (!NotificationUtils.isNotificationEnabled(this)) {
+                new CircleDialog.Builder()
+                        .setTitle("您还未开启系统通知，可能会影响消息的接收，要去开启吗？")
+                        .setTitleColor(getResources().getColor(R.color.black))
+                        .setWidth(0.8f)
+
+                        .setCancelable(false)
+                        .setPositive("确定", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                // 跳转权限设置
+                                NotificationUtils.gotoSet(TestActivity.this);
+                            }
+                        })
+                        .setNegative("取消", new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+
+                            }
+                        })
+                        .show(getSupportFragmentManager());
+            } else {
+                LogUtils.e("onNext: " + "已开启通知权限");
+            }
+        }
+
+
+    }
+
 
 
     public void btn_page(View view) {
@@ -148,6 +185,7 @@ public class TestActivity extends AppCompatActivity {
                         mNumberProgressBar.setVisibility(View.INVISIBLE);
                     }
                 }).start();*/
+
 
         new AppUpdater.Builder().serUrl(mApkFileUrl)
                 .setReDownload(true)

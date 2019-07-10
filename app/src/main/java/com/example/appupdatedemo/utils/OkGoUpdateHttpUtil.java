@@ -1,4 +1,4 @@
-package com.example.appupdatedemo.util;
+package com.example.appupdatedemo.utils;
 
 import android.support.annotation.NonNull;
 
